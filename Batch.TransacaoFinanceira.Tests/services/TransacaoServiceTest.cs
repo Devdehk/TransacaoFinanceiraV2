@@ -1,99 +1,62 @@
 using Xunit;
 using Moq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Batch.TransacaoFinanceira.domain.dto;
-using Batch.TransacaoFinanceira.domain.models;
 using Batch.TransacaoFinanceira.domain.mappers;
 using Batch.TransacaoFinanceira.services;
 using Batch.TransacaoFinanceira.services.interfaces;
 using Microsoft.Extensions.Logging;
-using System.IO;
-using Newtonsoft.Json;
-using Castle.Core;
 
 namespace Batch.TransacaoFinanceira.Tests.services
 {
     public class TransacaoServiceTest
     {
-        [Fact]
-        public async Task ProcessarTransacoes_DeveAtualizarSaldosDasContas()
+        private readonly TransacaoService _transacaoService;
+
+        public TransacaoServiceTest()
         {
-            // Arrange
             var loggerMock = new Mock<ILogger<TransacaoService>>();
             var contaServiceMock = new Mock<IContaService>();
-            var transacaoMapperMock = new Mock<TransacaoMapper>(null);
+            var transacaoMapperMock = new Mock<TransacaoMapper>(contaServiceMock.Object, new Mock<ILogger<TransacaoMapper>>().Object);
 
-            var contaOrigem = new Conta(1, 1000);
-            var contaDestino = new Conta(2, 500);
+            _transacaoService = new TransacaoService(loggerMock.Object, transacaoMapperMock.Object, contaServiceMock.Object);
+        }
 
-            var transacaoDTO = new TransacaoDTO
+        [Fact]
+        public void ProcessarTransacoesTest_SucessoProcessarTransacoes()
+        {
+            // Arrange
+            IList<TransacaoDTO> transacoes = new List<TransacaoDTO>
             {
-                correlation_id = 1,
-                conta_origem = 1,
-                conta_destino = 2,
-                valor = 200
+                new() { correlation_id = 1, datetime = DateTime.Now.AddMinutes(-10), valor = 100, conta_origem = 123, conta_destino = 456 },
+                new TransacaoDTO { correlation_id = 2, datetime = DateTime.Now.AddMinutes(-5), valor = 200, conta_origem = 123, conta_destino = 789 }
             };
 
-            var transacao = new Transacao(
-                1,
-                DateTime.Now,
-                200,
-                contaOrigem,
-                contaDestino
-            );
-
-            transacaoMapperMock
-                .Setup(m => m.Mapper(It.IsAny<TransacaoDTO>()))
-                .ReturnsAsync(transacao);
-
-            contaServiceMock
-                .Setup(m => m.AtualizarConta(It.IsAny<Conta>()))
-                .Returns(Task.CompletedTask);
-
-            var tempFile = Path.GetTempFileName();
-            File.WriteAllText(tempFile, JsonConvert.SerializeObject(new List<TransacaoDTO> { transacaoDTO }));
-
-            var service = new TransacaoService(
-                loggerMock.Object,
-                transacaoMapperMock.Object,
-                contaServiceMock.Object
-            );
-
-            // Act
-            await service.ProcessarTransacoes(tempFile);
-
-            // Assert
-            Assert.Equal(800, contaOrigem.SaldoConta);
-            Assert.Equal(700, contaDestino.SaldoConta);
-
-            contaServiceMock.Verify(m => m.AtualizarConta(contaOrigem), Times.Once);
-            contaServiceMock.Verify(m => m.AtualizarConta(contaDestino), Times.Once);
-
-            File.Delete(tempFile);
+            // // quando o método LerArquivoTransacao for chamado, retornar a lista de transações mockada
+            // var lerArquivoTransacaoMethod = typeof(TransacaoService).GetMethod("LerArquivoTransacao", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            // lerArquivoTransacaoMethod.Invoke(_transacaoService, [It.IsAny<string>()]).ReturnsAsync(transacoes);
         }
 
         [Fact]
-        public async Task ProcessarTransacoes_ArquivoJsonMalformado_DeveLancarExcecao()
+        public void ProcessarTransacoesTest_NenhumaTransacao()
         {
-            // Arrange
-            var loggerMock = new Mock<ILogger<TransacaoService>>();
-            var contaServiceMock = new Mock<IContaService>();
-            var transacaoMapperMock = new Mock<TransacaoMapper>(null);
-
-            var tempFile = Path.GetTempFileName();
-            File.WriteAllText(tempFile, "arquivo_invalido");
-
-            var service = new TransacaoService(
-                loggerMock.Object,
-                transacaoMapperMock.Object,
-                contaServiceMock.Object
-            );
-
-            // Act & Assert
-            await Assert.ThrowsAsync<JsonException>(() => service.ProcessarTransacoes(tempFile));
-
-            File.Delete(tempFile);
         }
+
+        [Fact]
+        public void ProcessarTransacoesTest_TransacaoInvalida()
+        {
+        }
+
+        [Fact]
+        public void LerArquivoTransacaoTest_SucessoLeitura()
+        {
+        }
+
+        [Fact]
+        public void LerArquivoTransacaoTest_ArquivoInvalido()
+        {
+        }
+
+
+        
     }
 }

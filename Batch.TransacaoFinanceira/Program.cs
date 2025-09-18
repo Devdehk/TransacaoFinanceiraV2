@@ -62,7 +62,7 @@ class Program
 
         // Iniciando o processando o arquivo de transações através de um arquivo JSON
         var transacaoService = serviceProvider.GetRequiredService<ITransacaoService>();
-        string caminhoArquivo = "data/storage/transacoes/2025-09-14/transacoes.json";
+        string caminhoArquivo = "data/storage/transacoes/2023-09-09/transacoes.json";
         await transacaoService.ProcessarTransacoes(caminhoArquivo);
     }
 }
