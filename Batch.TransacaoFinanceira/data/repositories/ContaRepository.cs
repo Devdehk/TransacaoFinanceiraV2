@@ -28,9 +28,8 @@ namespace Batch.TransacaoFinanceira.data.repositories
             {
                 return await _context.Contas.Where(c => c.CodigoConta == codigoConta).FirstOrDefaultAsync();
             }
-            catch (Exception ex)
+            catch
             {
-                _logger.LogError($"ContaRepository - Erro ao buscar Conta por Código: {ex.Message}");
                 throw;
             }
         }
@@ -42,22 +41,34 @@ namespace Batch.TransacaoFinanceira.data.repositories
                 _context.Contas.Add(conta);
                 await _context.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch
             {
-                _logger.LogError($"ContaRepository - Erro ao cadastrar Conta: {ex.Message}");
+                throw;
             }
         }
 
-        public Task CadastrarConta(ICollection<Conta> conta)
+        public async Task CadastrarConta(ICollection<Conta> conta)
         {
             try
             {
                 _context.Contas.AddRange(conta);
-                return _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch
             {
-                _logger.LogError($"ContaRepository - Erro ao cadastrar Contas: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task AtualizarConta(Conta conta)
+        {
+            try
+            {
+                var contaAtualizada = _context.Contas.Update(conta);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
                 throw;
             }
         }

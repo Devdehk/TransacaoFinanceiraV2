@@ -7,7 +7,10 @@ using Batch.TransacaoFinanceira.data.repositories.interfaces;
 using Batch.TransacaoFinanceira.services.interfaces;
 using Batch.TransacaoFinanceira.services;
 using Batch.TransacaoFinanceira.domain.models;
+using Batch.TransacaoFinanceira.domain.mappers;
+using System.Diagnostics.CodeAnalysis;
 
+[ExcludeFromCodeCoverage]
 class Program
 {
     static async Task Main(string[] args)
@@ -26,6 +29,7 @@ class Program
         services.AddScoped<IContaRepository, ContaRepository>();
         services.AddScoped<IContaService, ContaService>();
         services.AddScoped<ITransacaoService, TransacaoService>();
+        services.AddScoped<TransacaoMapper>();
 
         var loggerFactory = LoggerFactory.Create(static builder =>
         {
@@ -40,7 +44,7 @@ class Program
 
         var contaService = serviceProvider.GetRequiredService<IContaService>();
 
-        //Cadadastrando Contas
+        //Cadadastrando Contas para o processamento das transações
         ICollection<Conta> contas =
         [
             new Conta(938485762, 180),
@@ -53,9 +57,13 @@ class Program
             new Conta(674038564, 400),
             new Conta(563856300, 1200)
         ];
-
-        //Cadadastrando Contas
         await contaService.CadastrarConta(contas);
+
+
+        // Iniciando o processando o arquivo de transações através de um arquivo JSON
+        var transacaoService = serviceProvider.GetRequiredService<ITransacaoService>();
+        string caminhoArquivo = "data/storage/transacoes/2025-09-14/transacoes.json";
+        await transacaoService.ProcessarTransacoes(caminhoArquivo);
     }
 }
 

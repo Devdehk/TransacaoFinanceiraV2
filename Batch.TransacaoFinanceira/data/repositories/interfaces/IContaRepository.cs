@@ -13,5 +13,6 @@ namespace Batch.TransacaoFinanceira.data.repositories.interfaces
         Task CadastrarConta(Conta conta);
         Task CadastrarConta(ICollection<Conta> conta);
         Task<Conta> BuscarContaPorCodigo(BigInteger codigoConta);
+        Task AtualizarConta(Conta conta);
     }
 }

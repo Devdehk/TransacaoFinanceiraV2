@@ -38,5 +38,10 @@ namespace Batch.TransacaoFinanceira.services
         {
             await _repository.CadastrarConta(conta);
         }
+
+        public async Task AtualizarConta(Conta conta)
+        {
+            await _repository.AtualizarConta(conta);
+        }
     }
 }
