@@ -4,6 +4,8 @@
 
 O projeto **Batch.TransacaoFinanceira** é uma aplicação .NET focada no processamento em lote de transações financeiras. Ele lê arquivos de entrada (como JSON), valida e executa movimentações entre contas, aplicando regras de negócio e persistindo os dados em um banco de dados em memória.
 
+O projeto é uma proposta ao problema proposto em: https://github.com/fnoriduki/TransacaoFinanceira
+
 ## Funcionalidades Principais
 
 - Processamento automatizado de arquivos de transações financeiras.
